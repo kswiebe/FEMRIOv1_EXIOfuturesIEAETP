@@ -28,6 +28,7 @@ Scenario data: IEA Energy Technology Perspectives 2015
 This version is uploaded
 - as a static version in a *.zip to 
   https://zenodo.org/communities/indecol/
+  https://doi.org/10.5281/zenodo.1342556
 - as a dynamic to build-on version to 
   https://github.com/kswiebe/FEMRIOv1_EXIOfuturesIEAETP/ 
   
