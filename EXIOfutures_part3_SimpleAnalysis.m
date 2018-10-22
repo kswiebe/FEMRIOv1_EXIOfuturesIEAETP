@@ -26,7 +26,7 @@
 % ***************************************************************
 
 %% Part 3 Simple Analysis
-clear all
+clear
 %% Initializations
 run('EXIOfutures_init.m');
 addpath('SimpleAnalysis\');

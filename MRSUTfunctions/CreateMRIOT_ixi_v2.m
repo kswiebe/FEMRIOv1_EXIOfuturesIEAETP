@@ -13,12 +13,12 @@ n_i=size(sup,2);
 n_p=size(sup,1);
 tic
 D = sparse(make/(sparse(1:n_p,1:n_p,prodout_dom(1:n_p))));
-toc
+%toc
 Z= D*use(1:n_p,1:n_i);
 F= use(n_p+1:end,1:n_i);
 Y= D*use(1:n_p,n_i+1:end);
 FY=use(n_p+1:end,n_i+1:end);
-toc
+%toc
 % Z= [Z;use(n_p+1:end,:)];
 Z(Z<1e-9&Z>0)=0;
 indout=sum(Z(1:n_i,:),2)+sum(Y(1:n_i,:),2);
@@ -28,7 +28,7 @@ indout2(indout<1e-3)=1;
 A= Z(:,1:n_i)/sparse(1:n_i,1:n_i,indout2);
 S= F(:,1:n_i)/sparse(1:n_i,1:n_i,indout2);
 A(:,indout<1e-6)=0;
-toc
+%toc
 % A(A<1e-9&A>0)=0;
 
 % L=inv(eye(n_i)-A(1:n_i,1:n_i));

@@ -18,7 +18,7 @@ regres.GOVE = zeros(nreg,2);
 regres.GFCF = zeros(nreg,2);
 
 %figure() 
-diary('regres\HOUSpc.txt')
+diary('HOUSpc.txt')
 for reg = 1:nreg
     %figure() %subplot(1,nreg,reg)
     %plot(MacroData.VApc(reg,1:(nyears-1)),MacroData.HOUSpc(reg,1:(nyears-1)),'.');
@@ -39,7 +39,7 @@ for reg = 1:nreg
 end
 diary off
 
-diary('regres\HOUS.txt')
+diary('HOUS.txt')
 for reg = 1:nreg    
     reg %to display the region
     % to get model fit
@@ -55,7 +55,7 @@ for reg = 1:nreg
 end
 diary off
 
-diary('regres\NPSH.txt')
+diary('NPSH.txt')
 for reg = 1:nreg    
     reg %to display the region
     % to get model fit
@@ -71,7 +71,7 @@ for reg = 1:nreg
 end
 diary off
 
-diary('regres\GOVE.txt')
+diary('GOVE.txt')
 for reg = 1:nreg    
     reg %to display the region
     % to get model fit
@@ -87,7 +87,7 @@ for reg = 1:nreg
 end
 diary off
 
-diary('regres\GFCF.txt')
+diary('GFCF.txt')
 for reg = 1:nreg    
     reg %to display the region
     % to get model fit

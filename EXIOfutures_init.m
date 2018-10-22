@@ -7,13 +7,21 @@ myDropboxPath = 'C:\Users\kirstesw\Dropbox\';
 
 %% change to reflect folder structure
 thispath = [myDropboxPath,'FEMRIOv1_EXIOfuturesIEAETP'];
-
+EXIOfuturepath = [thispath,'\futures\'];
 
 %% Set working directory
 cd(thispath);
 
 %% Useful functions
 addpath('MRSUTfunctions');
+
+%% other paths to add
+mrio_result_path = 'futures\';
+% functions necessary for the IEA technology scenarios
+addpath([thispath,'\TECH_SCENARIOS']);
+% functions necessary for other scenarios
+addpath([thispath,'\Scenarios']);
+addpath([thispath,'\regres']);
 
 %% Initializations
 startyear = 1995;

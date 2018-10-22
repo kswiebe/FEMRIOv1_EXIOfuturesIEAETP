@@ -6,18 +6,14 @@
 % scenarios. This include the first 55 lines or so up to and including
 % section "6.1 IEA ETP Technology scenarios Initializations"
 
-%% clear all
+%% clear 
 % cd([myDropboxPath,'EXIOfuturesIEAETP']);
 %% Initializations for EXIOfuturesIEAETP 
 
 run('EXIOfutures_init.m');
-
 %EXIOfutureyears = 2015; % for testing purposes
 EXIOfutureyears = 2015:5:finalyear; %is used in the EXIOfutures_projection.m
-mrio_result_path = 'futures\';
 
-% functions necessary for the technology scenarios
-addpath([thispath,'\TECH_SCENARIOS']);
 
 %% Make sure to have the historical data in the memory
 
@@ -29,6 +25,12 @@ load('EXIOhist\SUThist.mat');
 load('EXIOhist\MacroDatahist.mat');
 load('regres\regres.mat');
 
+% reduce Irelands (15) growth in 2015 (21)
+MacroDatahist.IMFGDPgrowth(15,21) = 0.055;
+MacroDatahist.GDPgrowth(15,21) = 0.055;
+for t = 21:36
+    MacroDatahist.GDPTRshouldbe(15,t) = MacroDatahist.GDPTRshouldbe(15,t-1)*(1+MacroDatahist.GDPgrowth(15,t));
+end
 
 %% create base year MRSUT sytem and convert to MRIO
 % the format in which EXIOBASE3 is published as well
@@ -72,12 +74,14 @@ greenagriculture = 0;
 run('EXIOfutures_projection.m');
 selectedregions = [6 11 28 29 30 31];
 run('EXIOfutures_plotMacroResults.m');
+selectedregions = [1 2 5 12 14 15 ];
+run('EXIOfutures_plotMacroResults.m');
 %projectpath = [myDropboxPath,'CurrentWork\Paper 1 - TransformationPathwaysMethodology\Analysis\'];
 disp(['Done with Scenario ',scenarioname,'!'])
 
+%% 6.2.2 IEA ETP 4 degree scenario
+
 %% 6.2.3 IEA ETP 6 degree scenario
-
-
 calculateEPT2015scendata = 0;
 scenname = '6degrees';
 run('TECH_SCENARIOS\TECH_SCENARIO_ElectricityInitData_part2.m');
@@ -94,4 +98,48 @@ run('EXIOfutures_projection.m');
 selectedregions = [6 11 28 29 30 31];
 run('EXIOfutures_plotMacroResults.m');
 %projectpath = [myDropboxPath,'CurrentWork\Paper 1 - TransformationPathwaysMethodology\Analysis\'];
+disp(['Done with Scenario ',scenarioname,'!'])
+
+%% 6.2.4 Circular Economy scenario based on base projection of IEA ETP 6 degree scenario
+
+calculateEPT2015scendata = 0;
+scenname = '6degrees';
+run('TECH_SCENARIOS\TECH_SCENARIO_ElectricityInitData_part2.m');
+
+%  Circular Economy
+run('CircularEconomy_init.m')
+
+scenarioname = '6degreesCircularEconomy';
+changeConsStructure = 0; usePADS = 1;
+FDestimations = 1;
+changeEnergyUse = 1;
+changeElecTechCoef = 1;
+circulareconomy = 1;
+greenagriculture = 0;
+run('EXIOfutures_projection_iteration.m');
+selectedregions = [6 11 28 29 30 31];
+run('EXIOfutures_plotMacroResults.m');
+disp(['Done with Scenario ',scenarioname,'!'])
+
+%% 6.2.5 IEA ETP 6 degree scenario: with Iterations
+calculateEPT2015scendata = 0;
+scenname = '6degrees';
+run('TECH_SCENARIOS\TECH_SCENARIO_ElectricityInitData_part2.m');
+
+scenarioname = '6degreesIter';
+changeConsStructure = 0; usePADS = 1;
+FDestimations = 1;
+changeEnergyUse = 1;
+changeElecTechCoef = 1;
+circulareconomy = 0;
+greenagriculture = 0;
+run('EXIOfutures_projection_iteration.m');
+selectedregions = [6 11 28 29 30 31];
+run('EXIOfutures_plotMacroResults.m');
+selectedregions = [1 2 5 12 14 15 ];
+run('EXIOfutures_plotMacroResults.m');
+selectedregions = [35 43 45:49 ];
+run('EXIOfutures_plotMacroResults.m');
+selectedregions = [38:44 ];
+run('EXIOfutures_plotMacroResults.m');
 disp(['Done with Scenario ',scenarioname,'!'])

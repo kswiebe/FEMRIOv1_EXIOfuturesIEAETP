@@ -1,4 +1,4 @@
-function [results] = calculateTRADEmatrices(EXIOfuturepath,scenarioname,year,nreg,nind,nfd,charfos,charmet,charCO2,couagg,AggConcregionaggrt)
+function [results] = calculateTRADEmatrices(EXIOfuturepath,scenarioname,year,nreg,nind,nfd,char,couagg,AggConcregionaggrt)
 
 load([EXIOfuturepath,scenarioname,'\final_IOT_',num2str(year),'_ixi.mat']);
 

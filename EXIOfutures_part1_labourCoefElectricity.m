@@ -6,6 +6,10 @@
 % This part loads the MRSUTs from 1995 to 2014 and stores the macro data in 
 % struct MacroData and the MRSUT for the last year available in the struct SUT.
 
+% for the macro-economic regressions we need the data in constant prices
+% but we will start from the 2014 table in current prices, we therefore
+% need to rebase the constant price data into 2014 prices
+
 % this version changes the labour compensation coefficients for the
 % electricity according to newly available data
 
@@ -25,13 +29,20 @@ run('EXIOfutures_init.m');
 %% Path to Exiobase
 
 MRIOs_path = '\\winfil.it.ntnu.no\EPT_eksperimentell\Indecol\Projects\MRIOs\';
-MRIO_data_path='X:\indecol\Projects\DESIRE\wp5_eeio\const_time_series\MRSUT\processed\';
+MRIO_data_path_constant='X:\indecol\Projects\DESIRE\wp5_eeio\const_time_series\MRSUT\processed\';
+% 2018-09-12 change to base historic data on current price series
+MRIO_data_path_current='X:\indecol\Projects\DESIRE\wp5_eeio\coeff_time_series\MRSUT\processed\';
+
 
 %% 1) loading data
 disp('1) Loading data....')
 
 % Load the data and store it in a comparable format:
-updateMacroDataBASE = 0;
+updateMacroDataBASE = 1;
+%updated on Sept 13 to have both constant and current and rebased final
+%constant in 2014 prices, so we can use the 2014 MRIO in current prices as
+%a starting point for the scenarios, with the rebased constant price
+%macrodata for the macroregressions
 
 
 % Multiregional matrices
@@ -74,57 +85,22 @@ updateMacroDataBASE = 0;
 % * NOSpc = NOS./POPU
 
 if updateMacroDataBASE == 1
-    for year=startyear:endyear
-        t = year-startyear+1;
-        load([MRIO_data_path,'MRSUT_',num2str(year),'.mat']);
-        MRSUP = MRSUT.mrsup; % MRMAKE = transpose(SUTagg.mrsup);
-        MRUSE = MRSUT.mrbpimp + MRSUT.mrbpdom;
-        MRFD = MRSUT.mrbpimpfd + MRSUT.mrbpdomfd;
-        MRSUT.mrbpdomva(5:8,:)=abs(MRSUT.mrbpdomva(5:8,:));
-        MRVA = MRSUT.mrbpdomva;
-        MRVA(end+1,:) = sum(MRSUT.mrbpdomva(relVA,:),1);
-    
-        if year == endyear
-            SUT.scenarioname = 'EXIOhist';
-            SUT.year = year; 
-            SUT.meta = MRSUT.meta;
-            SUT.MRSUP = MRSUP;
-            SUT.MRUSE = MRUSE;
-            SUT.MRFD = MRFD;
-            SUT.MRVA = MRVA;
-        end
-        
-        % Macro variables
-        fdvec = sum(MRFD,1);%column sum
-        for c = 1:nreg
-            MacroData.HOUS(c,t) = fdvec(CouSthIndex(c,1,nfd));
-            MacroData.NPSH(c,t) = fdvec(CouSthIndex(c,2,nfd));
-            MacroData.GOVE(c,t) = fdvec(CouSthIndex(c,3,nfd));
-            MacroData.GFCF(c,t) = fdvec(CouSthIndex(c,4,nfd));
-            MacroData.CIES(c,t) = fdvec(CouSthIndex(c,5,nfd))+fdvec(CouSthIndex(c,6,nfd));
-            MacroData.TAX(c,t) = sum(sum(MRVA(1:4,CouSthIndex(c,1,nind):CouSthIndex(c,nind,nind))));
-            MacroData.WAGE(c,t) = sum(sum(MRVA(5:8,CouSthIndex(c,1,nind):CouSthIndex(c,nind,nind))));
-            MacroData.NOS(c,t) = sum(sum(MRVA(9:12,CouSthIndex(c,1,nind):CouSthIndex(c,nind,nind))));
-        end
-        % trade
-        for c = 1:nreg
-            DOMUSE = sum(sum(MRUSE(CouSthIndex(c,1,nprod):CouSthIndex(c,nprod,nprod),CouSthIndex(c,1,nind):CouSthIndex(c,nind,nind))));
-            DOMFD = sum(sum(MRUSE(CouSthIndex(c,1,nprod):CouSthIndex(c,nprod,nprod),CouSthIndex(c,1,nfd):CouSthIndex(c,nfd,nfd))));
-            EXPUSEtemp = sum(sum(MRUSE(CouSthIndex(c,1,nprod):CouSthIndex(c,nprod,nprod),:)));
-            EXPFDtemp = sum(sum(MRUSE(CouSthIndex(c,1,nprod):CouSthIndex(c,nprod,nprod),:)));
-            IMPUSEtemp = sum(sum(MRUSE(:,CouSthIndex(c,1,nind):CouSthIndex(c,nind,nind))));
-            IMPFDtemp = sum(sum(MRUSE(:,CouSthIndex(c,1,nfd):CouSthIndex(c,nfd,nfd))));
-            MacroData.IMPUSE(c,t) = IMPUSEtemp - DOMUSE;
-            MacroData.EXPUSE(c,t) = EXPUSEtemp - DOMUSE;
-            MacroData.IMPFD(c,t) = IMPFDtemp - DOMFD;
-            MacroData.EXPFD(c,t) = EXPFDtemp - DOMFD;
-            MacroData.EXP(c,t) = MacroData.EXPUSE(c,t) + MacroData.EXPFD(c,t);
-            MacroData.IMP(c,t) = MacroData.IMPUSE(c,t) + MacroData.IMPFD(c,t);
-        end
-    end
+    currentprices = 0;
+    MRIO_data_path = MRIO_data_path_constant;
+    run('EXIOfutures_make_macrodata.m')
+    MRIO_data_path = MRIO_data_path_current; % and it's meant to be this path for the remainder
+    MacroDataCons = MacroData;
+    currentprices = 1;
+    run('EXIOfutures_make_macrodata.m')
+    MacroDataCurr = MacroData;    
+    run('EXIOfutures_rebase_macrodata.m');
+    % save the rebased constant price version
     save('EXIOhist\MacroDatabase.mat','MacroData');
+    save('EXIOhist\MacroDatabaseCurr.mat','MacroDataCurr');
+    save('EXIOhist\MacroDatabaseCons.mat','MacroDataCons');
 else %updatemacrodatabase ~=1 
     load('EXIOhist\MacroDatabase.mat');
+    MRIO_data_path = MRIO_data_path_current; 
     year=endyear;
     t = year-startyear+1;
     load([MRIO_data_path,'MRSUT_',num2str(year),'.mat']);
@@ -513,7 +489,7 @@ MacroData.VA = MacroData.TAX + MacroData.WAGE + MacroData.NOS;
 MacroData.VApc = MacroData.VA./MacroData.POPU(:,1:nyears); 
 
 % Do regressions and get regression coefficients
-run('regres\EXIOfutures_MacroRegressions.m');
+run('EXIOfutures_MacroRegressions.m');
 
 
 %% 4) Scenario data
@@ -649,6 +625,13 @@ MacroDatahist = MacroData;
 if exist('EXIOhist') == 0
     mkdir EXIOhist;
 end
+
+% check NANs and inf in coefficeints
+SUThist.MRUSEcoefB(isnan(SUThist.MRUSEcoefB)) = 0;
+SUThist.MRSUPcoefD(isnan(SUThist.MRSUPcoefD)) = 0;
+SUThist.natUSEcoefB(isnan(SUThist.natUSEcoefB)) = 0;
+SUThist.VAcoef(isnan(SUThist.VAcoef)) = 0;
+
 
 save('EXIOhist\SUThist.mat','SUThist', '-v7.3');
 save('EXIOhist\MacroDatahist.mat','MacroDatahist');

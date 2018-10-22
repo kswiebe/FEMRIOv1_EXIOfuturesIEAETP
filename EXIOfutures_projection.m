@@ -1,7 +1,7 @@
 %% FEMRIO version1: EXIOfuturesIEAETP
 % by Kirsten S. Wiebe
 
-%% Projection loop over years
+%% Projection loop over years that iterates to take into account feedback from value added to final demand
 % called from EXIOfutures_part2
 
 %% initalize scenario data
@@ -49,6 +49,7 @@ for year = (endyear+1):finalyear
         MacroData.GFCF(:,t) = MacroData.GFCF(:,t-1) + MacroData.GFCF(:,t-1).*MacroData.GDPgrowth(:,t);
     end
     MacroData.CIES(:,t) = MacroData.CIES(:,nyears) * 1^(1/(year-endyear));% fd cat 5 and 6
+    
     if FDestimations == 1
         % what we want is to have GDPTR = GDPTRtemp (= GDPTRshouldbe, which
         % is implied as soon as the first equality holds)
